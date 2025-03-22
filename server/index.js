@@ -1,11 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const pool = require('./db');
+const pool = require('../dbs/db');
 
-const signupRoute = require('./routes/signup');
-const loginRoute = require('./routes/login');
-const verifyEmailRoute = require('./routes/emailver'); 
+const signupRoute = require('../routes/signup');
+const loginRoute = require('../routes/login');
+const verifyEmailRoute = require('../routes/emailver'); 
 
 
 const app = express();

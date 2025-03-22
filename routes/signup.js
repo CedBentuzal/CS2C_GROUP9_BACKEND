@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
-const pool = require('../db'); // Your database connection
+const pool = require('../dbs/db'); // Your database connection
 
 const router = express.Router();
 
