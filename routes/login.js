@@ -1,7 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt');
-const pool = require('../dbs/db');
 const { loginUser } = require('../services/authService');
 
 // login route
