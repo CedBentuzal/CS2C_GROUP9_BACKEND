@@ -3,7 +3,8 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const pool = require('../dbs/db');
-
+// tested on postman and it works
+// login route
 router.post('/', async (req, res) => {
   const { email, password } = req.body;
 
@@ -16,7 +17,7 @@ router.post('/', async (req, res) => {
 
     const user = userQuery.rows[0];
 
-    // ✅ Check if user is verified before allowing login
+    // Check if user has verified their email -- fixed bug
     if (!user.verified) {
       return res.status(403).json({ message: 'Please verify your email before logging in.' });
     }
