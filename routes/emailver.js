@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../dbs/db');
 
-
+//verification email
 router.get('/verify-email', async (req, res) => {
     const { token } = req.query;
 

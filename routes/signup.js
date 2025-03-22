@@ -12,10 +12,10 @@ router.post('/', async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        //unique verification token
+        //unique verification token.
         const verificationToken = crypto.randomBytes(32).toString('hex');
 
-        // Save user to database
+        // Save user to database.
         await pool.query(
             'INSERT INTO users (username, email, password, verification_token, verified) VALUES ($1, $2, $3, $4, $5)',
             [username, email, hashedPassword, verificationToken, false]
