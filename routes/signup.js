@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
-const pool = require('../dbs/db'); // Your database connection
+const pool = require('../dbs/db'); 
 
 const router = express.Router();
 
@@ -10,19 +10,18 @@ router.post('/', async (req, res) => {
     const { username, email, password } = req.body;
 
     try {
-        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Generate a unique verification token
+        //unique verification token
         const verificationToken = crypto.randomBytes(32).toString('hex');
 
-        // Store user with 'verified' set to false
+        // Save user to database
         await pool.query(
             'INSERT INTO users (username, email, password, verification_token, verified) VALUES ($1, $2, $3, $4, $5)',
             [username, email, hashedPassword, verificationToken, false]
         );
 
-        // Send verification email
+        // Send verification email -- fixed
         sendVerificationEmail(email, verificationToken);
 
         res.status(201).json({ message: 'User created! Please verify your email.' });
@@ -32,7 +31,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Function to send verification email
+//verification email
 function sendVerificationEmail(email, token) {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
