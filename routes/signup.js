@@ -21,7 +21,7 @@ router.post('/', async (req, res) => {
             [username, email, hashedPassword, verificationToken, false]
         );
 
-        // Send verification email -- fixed
+        // Send verification email -- fixed.
         sendVerificationEmail(email, verificationToken);
 
         res.status(201).json({ message: 'User created! Please verify your email.' });

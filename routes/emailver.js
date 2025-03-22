@@ -13,7 +13,7 @@ router.get('/verify-email', async (req, res) => {
             return res.status(400).json({ message: 'Invalid or expired token' });
         }
 
-        //user is verified
+        //user is verified.
         await pool.query('UPDATE users SET verified = TRUE, verification_token = NULL WHERE verification_token = $1', [token]);
 
         res.json({ message: 'Email verified successfully! You can now log in.' });
