@@ -7,10 +7,14 @@ router.post("/", async (req, res) => {
 
     try {
         const response = await registerUser(username, email, password);
-        res.status(201).json(response);
+
+        if (!response.success) {
+            return res.status(400).json(response);
+        }
+       return res.status(201).json(response);
     } catch (error) {
         console.error("Signup error:", error);
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message:"Internal server error" });
     }
 });
 
