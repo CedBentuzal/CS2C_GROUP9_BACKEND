@@ -61,7 +61,7 @@ const loginUser = async (email, password) => {
       { expiresIn: '1h' }
     );
 
-    return ({ message: 'Login successful', token });
+    return ({ message: 'Login successful', token,username: user.username });
   } catch (error) {
     console.error('Login error:', error);
     throw new Error('Login failed'+error.message );

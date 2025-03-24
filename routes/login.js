@@ -8,7 +8,11 @@ router.post('/', async (req, res) => {
 
   try {
     const response = await loginUser(email, password);
-    res.status(200).json(response);
+    if (response.token){ 
+      res.status(200).json(response);
+    }else{
+      res.status(400).json(response);
+    }
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: error.message });
