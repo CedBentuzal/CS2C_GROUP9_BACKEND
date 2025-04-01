@@ -1,10 +1,10 @@
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
-const pool = require('../dbs/db'); 
-
-
+const pool = require('../config/db'); 
 require('dotenv').config();
+
+
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -16,7 +16,9 @@ const transporter = nodemailer.createTransport({
 
 const sendVerificationEmail = async (email, token) => {
     try {
-        const baseUrl = process.env.BASE_URL || 'http://192.168.1.115:3000';
+        const baseUrl = process.env.BASE_URL;
+        if (!baseUrl) {
+            throw new Error('BASE_URL not set in .env file');}
         const verificationLink = `${baseUrl}/api/verify-email?token=${token}`;
 
         const mailOptions = {
