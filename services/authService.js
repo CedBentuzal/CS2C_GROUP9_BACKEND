@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const pool = require('../config/db');
 const jwt = require('jsonwebtoken');
 const { sendVerificationEmail } = require('./emailService');
+const { response } = require('express');
 
 // Function to register a new user
 const registerUser = async (username, email, password) => {
@@ -20,7 +21,7 @@ const registerUser = async (username, email, password) => {
             // Check if email or username is already taken
         const checkuser = await pool.query('SELECT * FROM users WHERE email = $1 OR username = $2', [email, username]);
           if (checkuser.rows.length > 0) {
-            return{success:false, message: 'Email or username already taken'};
+            return{message: 'Email or username already taken'};
           }
         await pool.query(
             'INSERT INTO users (username, email, password, verification_token, verified) VALUES ($1, $2, $3, $4, $5)',
@@ -29,7 +30,7 @@ const registerUser = async (username, email, password) => {
           // Send verification email
         await sendVerificationEmail(email, verificationToken);
           
-        return {success:true, message: 'User created! Please verify your email.' };
+        return {message: 'User created! Please verify your email.'};
           }catch (error) {
         throw new Error('Error registering user: ' + error.message);
     }
@@ -39,29 +40,29 @@ const loginUser = async (email, password) => {
     const userQuery = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
 
     if (userQuery.rows.length === 0) {
-      return ({ message: 'Invalid email or password' });
+      return { message: 'Invalid email or password' };
     }
 
     const user = userQuery.rows[0];
 
     // Check if user has verified their email -- fixed bug.
     if (!user.verified) {
-      return ({ message: 'Please verify your email before logging in.' });
+      return { message: 'Please verify your email before logging in.' };
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return ({ message: 'Invalid email or password' });
+      return {message: 'Invalid email or password'};
     }
 
-    const token = jwt.sign(
+    jwt.sign(
       { id: user.id, username: user.username, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
-
-    return ({ message: 'Login successful', token,username: user.username });
+    
+    return {message: 'Login successful'};
   } catch (error) {
     console.error('Login error:', error);
     throw new Error('Login failed'+error.message );

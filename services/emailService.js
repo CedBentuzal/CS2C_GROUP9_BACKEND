@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const pool = require('../config/db'); 
-require('dotenv').config();
+require('../config/env'); // Load environment variables from .env file
 
 
 const transporter = nodemailer.createTransport({

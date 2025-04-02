@@ -3,18 +3,18 @@ const router = express.Router();
 const { registerUser } = require("../services/authService");
 
 router.post("/", async (req, res) => {
-    const { username, email, password } = req.body;
+const { username, email, password } = req.body;
 
-    try {
-        const response = await registerUser(username, email, password);
+try {
+    const response = await registerUser(username, email, password);
 
-        if (!response.success) {
-            return res.status(400).json(response);
-        }
-       return res.status(201).json(response);
+    if (response.success) {
+    return res.status(201).json(response);
+    }
+    return res.status(400).json(response);
     } catch (error) {
-        console.error("Signup error:", error);
-        res.status(500).json({ message:"Internal server error" });
+    console.error("Signup error:", error);
+    return res.status(500).json({ message:"Internal error" });
     }
 });
 
