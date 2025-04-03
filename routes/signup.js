@@ -8,10 +8,10 @@ const { username, email, password } = req.body;
 try {
     const response = await registerUser(username, email, password);
 
-    if (response.success) {
-    return res.status(201).json(response);
-    }
+    if (!response.success) {
     return res.status(400).json(response);
+    }
+    return res.status(201).json(response);
     } catch (error) {
     console.error("Signup error:", error);
     return res.status(500).json({ message:"Internal error" });
