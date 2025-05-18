@@ -6,6 +6,15 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
+  ssl: {rejectUnauthorized: false},
 });
 
-module.exports = pool;
+pool.query('SELECT NOW()')
+  .then((res) => {
+    console.log('Connected to the database:', res.rows[0].now);
+  })
+  .catch((err) => {
+    console.error('Database connection error:', err);
+  });
+
+  module.exports = pool;

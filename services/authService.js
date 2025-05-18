@@ -27,38 +27,46 @@ const registerUser = async (username, email, password) => {
         throw new Error('Error registering user: ' + error.message);
     }
   };
-const loginUser = async (email, password) => {
+  const loginUser = async (email, password) => {
     try {
-    const userQuery = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-
-    if (userQuery.rows.length === 0) {
-      return { message: 'Invalid email or password' };
+      const userQuery = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+  
+      if (userQuery.rows.length === 0) {
+        return { success: false, message: 'Invalid email or password' };
+      }
+  
+      const user = userQuery.rows[0];
+  
+      if (!user.verified) {
+        return { success: false, message: 'Please verify your email before logging in.' };
+      }
+  
+      const isMatch = await bcrypt.compare(password, user.password);
+  
+      if (!isMatch) {
+        return { success: false, message: 'Invalid email or password' };
+      }
+  
+      const token = jwt.sign(
+        { id: user.id, username: user.username, email: user.email },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
+      );
+      
+      return {
+        success: true,
+        message: 'Login successful',
+        token: token,
+        user: {  // Add this user object
+          id: user.id,
+          username: user.username,
+          email: user.email
+        }
+      };
+    } catch (error) {
+      console.error('Login error:', error);
+      return { success: false, message: 'Login failed: ' + error.message };
     }
-
-    const user = userQuery.rows[0];
-
-    // Check if user has verified their email -- fixed bug.
-    if (!user.verified) {
-      return { message: 'Please verify your email before logging in.' };
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      return {message: 'Invalid email or password'};
-    }
-
-    jwt.sign(
-      { id: user.id, username: user.username, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
-    
-    return {success:true, message: 'Login successful'};
-  } catch (error) {
-    console.error('Login error:', error);
-    throw new Error('Login failed'+error.message );
-  }
-};
+  };
 
 module.exports = { registerUser, loginUser };
