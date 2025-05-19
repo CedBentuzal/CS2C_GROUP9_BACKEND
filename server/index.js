@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
+const os = require('os'); // Add this
 require('../config/env'); 
 const pool = require('../config/db');
 
@@ -18,7 +19,7 @@ const port = process.env.PORT || 3000;
 // ======================
 // Enhanced Middleware
 // ======================
-app.use(morgan('dev')); // Logs requests in development
+app.use(morgan('dev'));
 app.use(helmet());
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3001',
@@ -26,19 +27,33 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10kb' }));
 
-// Rate limiting (applied to all routes)
+// ======================
+// IP Detection Function
+// ======================
+function getNetworkIp() {
+  const interfaces = os.networkInterfaces();
+  for (const iface of Object.values(interfaces).flat()) {
+    if (iface.family === 'IPv4' && !iface.internal) {
+      return iface.address;
+    }
+  }
+  return 'localhost';
+}
+
+// ======================
+// Rate Limiting
+// ======================
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per window
-  standardHeaders: true, // Return rate limit info in headers
-  legacyHeaders: false, // Disable deprecated headers
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 app.use(limiter);
 
-// Stricter rate limiting for auth routes
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5, // 5 attempts per 15 mins for auth
+  max: 5,
   message: 'Too many login attempts, please try again later'
 });
 app.use('/api/login', authLimiter);
@@ -93,9 +108,23 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+// ======================
+// Server Startup
+// ======================
+const networkIp = getNetworkIp();
+app.listen(port, '0.0.0.0', () => {
+  console.log(`
+  🚀 Server running!
+  - Local:       http://localhost:${port}
+  - Network:     http://${networkIp}:${port}
+  - Environment: ${process.env.NODE_ENV || 'development'}
+  `);
+  
   if (process.env.NODE_ENV === 'development') {
-    console.log(`API Docs: http://localhost:${port}/api-docs`);
+    console.log(`
+  Development Info:
+  - API Docs: http://localhost:${port}/api-docs
+  - Test the connection from your phone: http://${networkIp}:${port}/api/test-db
+    `);
   }
 });

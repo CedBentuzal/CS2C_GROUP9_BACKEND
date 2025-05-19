@@ -1,9 +1,6 @@
-const bcrypt = require('bcrypt');
-const crypto = require('crypto');
 const nodemailer = require('nodemailer');
-const pool = require('../config/db'); 
-require('../config/env'); // Load environment variables from .env file
-
+const pool = require('../config/db');
+require('../config/env');
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -13,13 +10,9 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-
-const sendVerificationEmail = async (email, token) => {
+const sendVerificationEmail = async (email, token, networkIp, port) => {
     try {
-        const baseUrl = process.env.BASE_URL;
-        if (!baseUrl) {
-            throw new Error('BASE_URL not set in .env file');}
-        const verificationLink = `${baseUrl}/api/verify-email?token=${token}`;
+        const verificationLink = `http://${networkIp}:${port}/api/verify-email?token=${token}`;
 
         const mailOptions = {
             from: process.env.GMAIL_USER,
@@ -36,6 +29,7 @@ const sendVerificationEmail = async (email, token) => {
         throw new Error("Failed to send verification email.");
     }
 };
+
 const verifyEmail = async (token) => {
     try {
         const result = await pool.query(
